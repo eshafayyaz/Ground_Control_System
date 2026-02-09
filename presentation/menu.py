@@ -1,79 +1,93 @@
-# Import Relevant Entities and Services 
-
+# Import Relevant Entities and Services
 from entities.mission import Mission
-from entities.drone import Drone 
+from entities.drone import Drone
 from services.mission_service import MissionService
 
-#Menu class: handles user input and actions
+
+# Menu class: handles user input and actions
 class Menu:
-    def __init__(self, mission_service:MissionService):
-        self.mission_service= mission_service
+    def __init__(self, mission_service: MissionService):
+        self.mission_service = mission_service
 
-# ------ FR-01: User shall be able to assign a mission to one or more drones.------#
-#  
-    # This method will handle the input for assigning a mission to drones
-    def assign_mission_input(self):
-        print("\n Assign a mission to drones")
-
-        # Mission input
+    # ------ FR-01: Assign Mission to Drone Swarm ------ #
     
-        mission_id = int(input("Enter Mission_ID: "))
-        mission_name = input("Enter Mission_Name: ")
-        mission_description = input("Enter Mission_Description: ")
-        mission = Mission(mission_id,mission_name,mission_description) #Mission() --> Mission object created here
+    # This method will handle the input for assigning a mission to drone swarm
+    def assign_mission_input(self):
+        print("\n Assign a mission to drone swarm")
 
-        # Drone Input 
+        # Mission basic info input
+        mission_id = int(input("Enter Mission ID: "))
+        mission_name = input("Enter Mission Name: ")
+        mission_description = input("Enter Mission Description: ")  
 
-        drone_count = int(input("How many drones to assign : "))
+        # Mission tasks input
+        tasks = []
+        print("\n Enter mission tasks (type 'done' when finished):")
+        while True:
+            task = input("Enter task: ")
+            if task.lower() == "done":
+                break
+            tasks.append(task)
 
-    #we will store multiple drones in this list
+        # Create mission object with tasks
+        mission = Mission(
+            mission_id,
+            mission_name,
+            mission_description,
+            tasks  # tasks list included
+        )
 
-        drones = []
-        for i in range (drone_count):
-          print(f"\n Drone {i+1}")
-        drone_id = int(input("Enter Drone_ID :"))
-        drone_model = input("Enter Drone_Model :")
-        status = input(" Enter Drone Status (available/busy):")
-        battery_level = float(input("Enter Battery_Level:"))
-        location_id = int(input("Enter Location_ID: "))
+        print("\nMission created successfully!")
+        print("Tasks assigned:")
+        for t in tasks:
+            print(f"- {t}")
 
-        # Create and save drone object in list
+        drone_swarm = [
+            Drone(
+                drone_id=1,
+                drone_model="Swarm of Drones",
+                status="available",
+                coordinates=(0.0, 0.0)
+            )
+        ]
 
-        drones.append(Drone(drone_id, drone_model, status, battery_level,location_id))
-        #Call the service to assign the mission to the drones
-        self.mission_service.assign_mission(mission, drones)
+        # Assign mission to drone swarm
+        self.mission_service.assign_mission(mission, drone_swarm)
 
-        print(f"\n Mission '{mission.mission_name}' assigned to {len(drones)} drone(s) successfully!")
-     
-    # This method will display the menu and handle user input
+        print(f"\n Mission '{mission.mission_name}' assigned to drone swarm successfully!")
 
-     # ------- FR-02: Start Mission -------- #
+    # ------- FR-02: Start Mission -------- #
+    # This method will handle the input for starting a mission
 
     def start_mission_input(self):
         print("\n Start a Mission")
-        mission_id = int(input("Enter Mission_ID to start: "))
 
-        # Call service to start mission
+        mission_id = int(input("Enter Mission ID to start: "))
+
         success = self.mission_service.start_mission(mission_id)
+
         if success:
-            print(f"\n Mission {mission_id} started successfully!")
+            print(f"\nMission {mission_id} started successfully!")
         else:
-            print(f"\n Mission {mission_id} not found or cannot be started.")
+            print(f"\nMission {mission_id} not found or cannot be started.")
+
+    #this method will display the menu and handle user choices
 
     def display_menu(self):
-        while True: # Infinite loop to keep the menu running until user chooses to exit
-            print("\n Ground_Control_System")
-            print("1. Assign a mission")
-            print("2. Start a Mission")
-            print("0. Exit")
-          
-            choice = int(input("Enter your choice:"))
-            if choice == 1:
-             self.assign_mission_input() # if choice 1 call assign_mission_input() 
-            elif choice == 2:
-                self.start_mission_input()# if choice 2 call start_mission_input() 
-            elif choice == 0:
-             print("Exiting")
-             break
-        else:
-          print("Invalid choice. Please try again.")
+        while True:
+            print("\n Ground Control System Menu")
+            print("1. Assign Mission to Drone Swarm")
+            print("2. Start Mission")
+            print("3. Exit")
+
+            choice = input("\n Enter your choice: ")
+
+            if choice == "1":
+                self.assign_mission_input()
+            elif choice == "2":
+                self.start_mission_input()
+            elif choice == "3":
+                print("Exiting Ground Control System. Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
