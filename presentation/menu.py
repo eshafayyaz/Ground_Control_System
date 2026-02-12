@@ -29,19 +29,21 @@ class Menu:
                 break
             tasks.append(task)
 
-        # Create mission object with tasks
+        # Create Mission object with tasks
         mission = Mission(
             mission_id,
             mission_name,
             mission_description,
-            tasks  # tasks list included
+            tasks,  # tasks list included
         )
 
         print("\nMission created successfully!")
-        print("Tasks assigned:")
+        print("Tasks assigned: ")
+        # for loop to display tasks assigned to the mission
         for t in tasks:
             print(f"- {t}")
 
+        # create drone swarm object 
         drone_swarm = [
             Drone(
                 drone_id=1,
@@ -51,7 +53,9 @@ class Menu:
             )
         ]
 
+
         # Assign mission to drone swarm
+        # using the assign_mission method of mission service to assign the created mission to the drone swarm
         self.mission_service.assign_mission(mission, drone_swarm)
 
         print(f"\n Mission '{mission.mission_name}' assigned to drone swarm successfully!")
