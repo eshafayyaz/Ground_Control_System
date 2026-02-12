@@ -4,7 +4,7 @@ class Drone:
         self.drone_model = drone_model
         self.status = status
         self.coordinates = coordinates
-    # method to execute mission tasks
+        
     def execute_mission(self, mission):
         print(f"\nDrone {self.drone_id} starting mission '{mission.mission_name}'...")
         for task in mission.tasks:
