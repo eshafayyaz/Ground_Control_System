@@ -1,8 +1,9 @@
 class Drone:
-    def __init__(self, drone_id, drone_model, status, coordinates):
+    def __init__(self, drone_id,name, drone_model, status, coordinates):
         self.drone_id = drone_id
         self.drone_model = drone_model
         self.status = status
+        self.name = name
         self.coordinates = coordinates
         
     def execute_mission(self, mission):

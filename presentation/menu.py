@@ -9,7 +9,7 @@ class Menu:
         self.task_handler = TaskHandler()
 
     def assign_mission_input(self):
-        print("\nAssign a mission to drone swarm")
+        print("\n Assign a mission to drone swarm")
         mission_id = int(input("Enter Mission ID: "))
         mission_name = input("Enter Mission Name: ")
         mission_description = input("Enter Mission Description: ")
@@ -20,7 +20,7 @@ class Menu:
             mission_id,
             mission_name,
             mission_description,
-            tasks,
+            tasks, 
         )
 
         print("\nMission created successfully!")
@@ -32,9 +32,11 @@ class Menu:
             Drone(
                 drone_id=1,
                 drone_model="Swarm of Drones",
+                name="Swarm Alpha",
                 status="available",
                 coordinates=(0.0, 0.0)
             )
+
         ]
 
         self.mission_service.assign_mission(mission, drone_swarm)
