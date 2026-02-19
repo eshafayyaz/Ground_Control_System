@@ -1,7 +1,4 @@
 class DroneService:
     def update_status(self,drone,status):
-        drone.status= status
+        drone.drone_status = status
         return drone 
-    def update_battery(self, drone, battery_level):
-        drone.battery_level = battery_level
-        return drone

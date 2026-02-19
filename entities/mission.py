@@ -4,5 +4,6 @@ class Mission:
         self.mission_name = mission_name
         self.mission_description = mission_description
         self.tasks = tasks
-        self.drones = []  
-        self.status = "PENDING"  
+        self.drones = []
+        self.status = "PENDING"
+
