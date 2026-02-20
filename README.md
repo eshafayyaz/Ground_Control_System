@@ -2,4 +2,4 @@
 
 ## Description
 
-This Ground Control System allows users to assign missions to one or more ground drones. A mission is basically a set of commands that the drone executes automatically. The user creates a mission by defining steps like moving to a location, taking pictures, or landing at a point. Once the mission starts, the drone follows these commands on its own without manual control at every step. The user does not need to control the drone at every step.
+The Ground Control System (GCS) allows users to assign missions to one or more drones through a simple menu interface. A mission consists of structured tasks — TAKEOFF, MOVE, ACTION, and LAND — executed automatically in sequence. Users create missions step-by-step by entering coordinates and actions, then assign them to a drone swarm. Once started, drones execute commands autonomously while the system tracks mission status in real time and generates a report after completion or abortion.
