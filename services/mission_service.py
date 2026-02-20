@@ -1,8 +1,8 @@
 from entities.mission import Mission
-from entities.drone import Drone
 from services.command_service import CommandService
 from services.drone_service import DroneService
 from services.task_service import TaskHandler
+from services.report_service import ReportService
 
 class MissionService:
     def __init__(self):
@@ -10,8 +10,9 @@ class MissionService:
         self.command_service = CommandService()
         self.drone_service = DroneService()
         self.task_handler = TaskHandler()
+        self.report_service = ReportService()
 
-    def assign_mission(self, mission: Mission, drone: list[Drone]):
+    def assign_mission(self, mission: Mission, drone: list):
         mission.drones = drone
         mission.status = "ASSIGNED"
 
@@ -45,6 +46,7 @@ class MissionService:
             self.drone_service.update_status(drone, "COMPLETED")
             print(f"{drone.drone_name} status: {drone.drone_status}")
 
+        self.report_service.generate_report(mission)
         return True
 
     def execute_mission(self, drone, mission):
@@ -68,4 +70,5 @@ class MissionService:
             self.drone_service.update_status(drone, "IDLE")
             print(f"{drone.drone_name} status: {drone.drone_status}")
 
+        self.report_service.generate_report(mission)
         return True

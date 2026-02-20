@@ -1,11 +1,10 @@
 from entities.mission import Mission
 from entities.task import Task
 from entities.drone import Drone
-from services.mission_service import MissionService
 
 
 class Menu:
-    def __init__(self, mission_service: MissionService):
+    def __init__(self, mission_service):
         self.mission_service = mission_service
 
     def assign_mission_input(self):
