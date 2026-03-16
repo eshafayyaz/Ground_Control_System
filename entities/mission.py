@@ -4,3 +4,4 @@ class Mission:
         self.mission_id = mission_id
         self.name = name
         self.description = description
+        self.tasks = []

@@ -1,11 +1,14 @@
-class Task:
-    def __init__(self, task_type, parameters=None):
-        self.task_type = task_type
-        self.parameters = parameters or {}
-
-    def __str__(self):
-        if self.task_type == "MOVE":
-            return f"MOVE to ({self.parameters.get('coordinates', '')})"
-        elif self.task_type == "ACTION":
-            return f"ACTION - {self.parameters.get('action', '')}"
-        return self.task_type
+class TaskHandler:
+    async def execute_task(self, task, drone_name: str = "Drone"):
+        if task.task_type == "TAKEOFF":
+            print(f"{drone_name} taking off")
+        elif task.task_type == "MOVE":
+            coords = task.parameters.get("coordinates", "0, 0")
+            print(f"{drone_name} moving to ({coords})")
+        elif task.task_type == "ACTION":
+            action = task.parameters.get("action", "unknown")
+            print(f"{drone_name} performing action: {action}")
+        elif task.task_type == "LAND":
+            print(f"{drone_name} landing")
+        else:
+            print(f"Unknown task: {task.task_type}")

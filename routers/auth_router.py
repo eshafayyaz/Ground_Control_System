@@ -8,9 +8,9 @@ router = APIRouter()
 auth_service = AuthService(DbContext())
 
 @router.post("/login", response_model=LoginResponse)
-def login(request: LoginRequest):
+async def login(request: LoginRequest):
     try:
-        auth_service.login(request.email, request.password)
+        await auth_service.login(request.email, request.password)
     except ValueError as e:
         raise HTTPException(status_code=401, detail=str(e))
 

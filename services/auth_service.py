@@ -7,14 +7,14 @@ class AuthService:
     def __init__(self, db_context: DbContext):
         self.db_context = db_context
 
-    def get_user(self, email: str) -> Optional[User]:
-        for user in DbContext.users:
+    async def get_user(self, email: str) -> Optional[User]:
+        for user in self.db_context.users:
             if user.email == email:
                 return user
         return None
 
-    def login(self, email: str, password: str) -> None:
-        user = self.get_user(email)
+    async def login(self, email: str, password: str) -> None:
+        user = await self.get_user(email)
 
         if user is None:
             raise ValueError("User not found with this email")

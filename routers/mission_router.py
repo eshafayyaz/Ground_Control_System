@@ -1,16 +1,19 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from schemas.mission_schema import MissionCreateRequest, MissionCreateResponse, MissionResponse
 from services.mission_service import MissionService
+from data_layer.db_context import DbContext
 
 router = APIRouter()
 
-mission_service = MissionService()
+
+def get_mission_service() -> MissionService:
+    return MissionService(DbContext())
 
 
 @router.post("/missions", response_model=MissionCreateResponse)
-def create_mission(request: MissionCreateRequest):
+async def create_mission(request: MissionCreateRequest, service: MissionService = Depends(get_mission_service)):
     try:
-        mission_service.create_mission(request.mission_id, request.name, request.description)
+        await service.create_mission(request.mission_id, request.name, request.description)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -18,5 +21,5 @@ def create_mission(request: MissionCreateRequest):
 
 
 @router.get("/missions", response_model=list[MissionResponse])
-def get_all_missions():
-    return mission_service.get_all_missions()
+async def get_all_missions(service: MissionService = Depends(get_mission_service)):
+    return await service.get_all_missions()
