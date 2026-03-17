@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from entities.tasks import Task
+from schemas.task_schema import Task
 
 
 class MissionCreateRequest(BaseModel):

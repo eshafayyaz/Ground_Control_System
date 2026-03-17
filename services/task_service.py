@@ -1,14 +1,12 @@
+from schemas.task_schema import TakeoffTask, MoveTask, ActionTask, LandTask
+
 class TaskHandler:
     async def execute_task(self, task, drone_name: str = "Drone"):
-        if task.task_type == "TAKEOFF":
+        if isinstance(task, TakeoffTask):
             print(f"{drone_name} taking off")
-        elif task.task_type == "MOVE":
-            coords = task.parameters.get("coordinates", "0, 0")
-            print(f"{drone_name} moving to ({coords})")
-        elif task.task_type == "ACTION":
-            action = task.parameters.get("action", "unknown")
-            print(f"{drone_name} performing action: {action}")
-        elif task.task_type == "LAND":
+        elif isinstance(task, MoveTask):
+            print(f"{drone_name} moving to ({task.coordinates})")
+        elif isinstance(task, ActionTask):
+            print(f"{drone_name} performing action: {task.action}")
+        elif isinstance(task, LandTask):
             print(f"{drone_name} landing")
-        else:
-            print(f"Unknown task: {task.task_type}")

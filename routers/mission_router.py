@@ -13,7 +13,7 @@ def get_mission_service() -> MissionService:
 @router.post("/missions", response_model=MissionCreateResponse)
 async def create_mission(request: MissionCreateRequest, service: MissionService = Depends(get_mission_service)):
     try:
-        await service.create_mission(request.mission_id, request.name, request.description)
+        await service.create_mission(request.mission_id, request.name, request.description, request.tasks)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
