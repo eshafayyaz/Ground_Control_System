@@ -5,10 +5,11 @@ from data_layer.db_context import DbContext
 
 router = APIRouter()
 
+# ✅ Ek baar banta hai, saari requests share karti hain
+mission_service = MissionService(DbContext())
 
 def get_mission_service() -> MissionService:
-    return MissionService(DbContext())
-
+    return mission_service  # Same instance return ho
 
 @router.post("/missions", response_model=MissionCreateResponse)
 async def create_mission(request: MissionCreateRequest, service: MissionService = Depends(get_mission_service)):
@@ -16,9 +17,7 @@ async def create_mission(request: MissionCreateRequest, service: MissionService 
         await service.create_mission(request.mission_id, request.name, request.description, request.tasks)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-
     return MissionCreateResponse(success=True, message="Mission created successfully")
-
 
 @router.get("/missions", response_model=list[MissionResponse])
 async def get_all_missions(service: MissionService = Depends(get_mission_service)):
