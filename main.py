@@ -2,12 +2,14 @@ from fastapi import FastAPI
 from routers.auth_router import router as auth_router
 from routers.mission_router import router as mission_router
 from routers.drone_router import router as drone_router
+from routers.mission_router import mission_service
+from services.drone_service import DroneService
+import services.drone_service as drone_service_module
 
 app = FastAPI()
 
-@app.get("/")
-async def root():
-    return {"message": "Ground Control System API", "status": "running"}
+# Initialize drone_service with mission_service dependency
+drone_service_module.drone_service = DroneService(mission_service)
 
 app.include_router(auth_router)
 app.include_router(mission_router)

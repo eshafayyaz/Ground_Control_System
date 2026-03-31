@@ -27,3 +27,21 @@ class MissionService:
 
     async def get_all_missions(self) -> List[Mission]:
         return self.missions
+    
+    async def start_mission(self, mission_id: int) -> Mission:
+        mission = await self.get_mission(mission_id)
+
+        if mission is None:
+            raise ValueError("Mission not found")
+
+        if mission.status == "created":
+            raise ValueError("Mission must be assigned to a drone before starting")
+
+        if mission.status == "in_progress":
+            raise ValueError("Mission is already in progress")
+
+        if mission.status == "completed":
+            raise ValueError("Mission is already completed")
+
+        mission.status = "in_progress"
+        return mission

@@ -31,3 +31,13 @@ class AssignMissionResponse(BaseModel):
     drone_id: str
     mission_id: int
     mission_name: str
+class StartMissionRequest(BaseModel):
+    mission_id: int
+
+class StartMissionResponse(BaseModel):
+    success: bool
+    message: str
+    mission_id: int
+    mission_name: str
+    status: str
+    tasks_count: int
