@@ -14,8 +14,20 @@ class MissionCreateResponse(BaseModel):
     message: str
 
 
+
 class MissionResponse(BaseModel):
     mission_id: int
     name: str
     description: str
     tasks: list[Task] = []
+
+class AssignMissionRequest(BaseModel):
+    mission_id: int
+    drone_id: str
+ 
+class AssignMissionResponse(BaseModel):
+    success: bool
+    message: str
+    drone_id: str
+    mission_id: int
+    mission_name: str
