@@ -7,7 +7,7 @@ router = APIRouter()
 mission_service = MissionService(DbContext())
 
 def get_mission_service() -> MissionService:
-    return mission_service  # Same instance return ho
+    return mission_service
 
 @router.post("/missions", response_model=MissionCreateResponse)
 async def create_mission(request: MissionCreateRequest, service: MissionService = Depends(get_mission_service)):

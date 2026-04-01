@@ -7,11 +7,10 @@ class Mission:
         self.name = name
         self.description = description
         self.tasks = tasks if tasks is not None else []
-        self.status = "created"  # created, assigned, in_progress, completed
+        self.status = "created"
         self.assigned_drone_id = None
 
     def to_dict(self):
-        """Convert mission to dict format for external API"""
         return {
             "id": self.mission_id,
             "name": self.name,

@@ -15,7 +15,6 @@ class DroneService:
         )
 
     async def assign_mission(self, drone_id: int, mission_id: int) -> AssignDroneMissionResponse:
-        # Get mission details from mission service
         if not self.mission_service:
             raise ValueError("Mission service not initialized")
 
@@ -24,7 +23,6 @@ class DroneService:
             raise ValueError("Mission not found")
 
         try:
-            # Call external drone API with query parameters
             response = await self.http_client.post(
                 f"/assign-mission/{drone_id}",
                 params={
@@ -35,15 +33,12 @@ class DroneService:
             )
             response.raise_for_status()
 
-            # Update mission status in our system
             mission.status = "assigned"
             mission.assigned_drone_id = drone_id
 
-            # Get drone name from external API response
             result = response.json()
             drone_name = result.get("drone_name", f"Drone {drone_id}")
 
-            # Create detailed message
             message = f"Mission '{mission.name}' assigned to drone '{drone_name}'"
 
             return AssignDroneMissionResponse(
@@ -57,7 +52,6 @@ class DroneService:
             raise ValueError(f"Connection error to drone API: {str(e)}")
 
     async def get_all_drones(self) -> List[Drone]:
-        
         try:
             response = await self.http_client.get("/drones")
             response.raise_for_status()
@@ -71,7 +65,6 @@ class DroneService:
             raise ValueError(f"Connection error to drone API: {str(e)}")
 
     async def close(self):
-        """Close HTTP client connection"""
         await self.http_client.aclose()
 
 drone_service = None

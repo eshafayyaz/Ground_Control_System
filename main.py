@@ -9,10 +9,8 @@ import services.drone_service as drone_service_module
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Initialize drone_service with mission_service dependency
     drone_service_module.drone_service = DroneService(mission_service)
     yield
-    # Shutdown: Close HTTP client connection
     if drone_service_module.drone_service:
         await drone_service_module.drone_service.close()
 
