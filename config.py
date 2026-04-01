@@ -1,0 +1,4 @@
+# Drone Management API Configuration
+# Updated: External Drone API from team member
+DRONE_API_BASE_URL = "http://192.168.100.152:8000"
+DRONE_API_TIMEOUT = 30  # seconds

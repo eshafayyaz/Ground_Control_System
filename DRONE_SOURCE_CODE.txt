@@ -1,0 +1,165 @@
+================================================================================
+                    DRONE SYSTEM - COMPLETE SOURCE CODE
+                         Date: April 1, 2026
+================================================================================
+
+================================================================================
+FILE 1: entities/drone.py
+================================================================================
+
+from pydantic import BaseModel
+from typing import Optional, Union
+
+class Drone(BaseModel):
+    drone_id: int
+    name: str
+    status: str = "IDLE"
+    mission: Optional[Union[dict, str]] = None  # Can be dict or string
+
+================================================================================
+FILE 2: schemas/drone_schema.py
+================================================================================
+
+from pydantic import BaseModel
+from typing import List, Optional
+from entities.drone import Drone
+
+class AssignDroneMissionRequest(BaseModel):
+    drone_id: int
+    mission_id: int
+
+class AssignDroneMissionResponse(BaseModel):
+    success: bool
+    message: str
+
+class DroneListResponse(BaseModel):
+    drones: List[Drone]
+
+
+================================================================================
+FILE 3: routers/drone_router.py
+================================================================================
+
+from fastapi import APIRouter, HTTPException
+from typing import List
+import services.drone_service as drone_service_module
+from schemas.drone_schema import AssignDroneMissionRequest, AssignDroneMissionResponse
+from entities.drone import Drone
+
+router = APIRouter()
+
+@router.post("/assign_mission", response_model=AssignDroneMissionResponse)
+async def assign_mission(request: AssignDroneMissionRequest):
+    try:
+        return await drone_service_module.drone_service.assign_mission(request.drone_id, request.mission_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+@router.get("/drones", response_model=List[Drone])
+async def get_all_drones():
+    try:
+        return await drone_service_module.drone_service.get_all_drones()
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+================================================================================
+FILE 4: services/drone_service.py
+================================================================================
+
+from typing import List
+import httpx
+from entities.drone import Drone
+from schemas.drone_schema import AssignDroneMissionResponse
+from services.mission_service import MissionService
+from data_layer.db_context import DbContext
+from config import DRONE_API_BASE_URL, DRONE_API_TIMEOUT
+
+class DroneService:
+    def __init__(self, mission_service: MissionService = None):
+        self.mission_service = mission_service
+        self.http_client = httpx.AsyncClient(
+            base_url=DRONE_API_BASE_URL,
+            timeout=DRONE_API_TIMEOUT
+        )
+
+    async def assign_mission(self, drone_id: int, mission_id: int) -> AssignDroneMissionResponse:
+        # Get mission details from mission service
+        if not self.mission_service:
+            raise ValueError("Mission service not initialized")
+
+        mission = await self.mission_service.get_mission(mission_id)
+        if not mission:
+            raise ValueError("Mission not found")
+
+        try:
+            # Call external drone API with query parameters
+            response = await self.http_client.post(
+                f"/assign-mission/{drone_id}",
+                params={
+                    "mission_id": mission.mission_id,
+                    "name": mission.name,
+                    "description": mission.description
+                }
+            )
+            response.raise_for_status()
+
+            # Update mission status in our system
+            mission.status = "assigned"
+            mission.assigned_drone_id = drone_id
+
+            # Get drone name from external API response
+            result = response.json()
+            drone_name = result.get("drone_name", f"Drone {drone_id}")
+
+            # Create detailed message
+            message = f"Mission '{mission.name}' assigned to drone '{drone_name}'"
+
+            return AssignDroneMissionResponse(
+                success=True,
+                message=message
+            )
+
+        except httpx.HTTPStatusError as e:
+            raise ValueError(f"Failed to assign mission: {e.response.text}")
+        except httpx.RequestError as e:
+            raise ValueError(f"Connection error to drone API: {str(e)}")
+
+    async def get_all_drones(self) -> List[Drone]:
+
+        try:
+            response = await self.http_client.get("/drones")
+            response.raise_for_status()
+
+            drones_data = response.json()
+            return [Drone(**drone) for drone in drones_data]
+
+        except httpx.HTTPStatusError as e:
+            raise ValueError(f"Failed to fetch drones: {e.response.text}")
+        except httpx.RequestError as e:
+            raise ValueError(f"Connection error to drone API: {str(e)}")
+
+    async def close(self):
+        """Close HTTP client connection"""
+        await self.http_client.aclose()
+
+drone_service = None
+
+
+================================================================================
+FILE 5: config.py
+================================================================================
+
+# Drone Management API Configuration
+# Updated: External Drone API from team member
+DRONE_API_BASE_URL = "http://192.168.100.152:8000"
+DRONE_API_TIMEOUT = 30  # seconds
+
+
+================================================================================
+                            END OF SOURCE CODE
+================================================================================

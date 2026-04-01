@@ -1,38 +1,78 @@
 from typing import List
+import httpx
 from entities.drone import Drone
 from schemas.drone_schema import AssignDroneMissionResponse
 from services.mission_service import MissionService
 from data_layer.db_context import DbContext
+from config import DRONE_API_BASE_URL, DRONE_API_TIMEOUT
 
 class DroneService:
     def __init__(self, mission_service: MissionService = None):
-        self.drones: List[Drone] = [
-            Drone(drone_id=1, drone_name="Alpha", drone_status="IDLE"),
-            Drone(drone_id=2, drone_name="Beta", drone_status="IDLE"),
-        ]
         self.mission_service = mission_service
+        self.http_client = httpx.AsyncClient(
+            base_url=DRONE_API_BASE_URL,
+            timeout=DRONE_API_TIMEOUT
+        )
 
     async def assign_mission(self, drone_id: int, mission_id: int) -> AssignDroneMissionResponse:
-        drone = next((d for d in self.drones if d.drone_id == drone_id), None)
-        if not drone:
-            raise ValueError("Drone not found")
+        # Get mission details from mission service
+        if not self.mission_service:
+            raise ValueError("Mission service not initialized")
 
-        if self.mission_service:
-            mission = await self.mission_service.get_mission(mission_id)
-            if not mission:
-                raise ValueError("Mission not found")
+        mission = await self.mission_service.get_mission(mission_id)
+        if not mission:
+            raise ValueError("Mission not found")
 
+        try:
+            # Call external drone API with query parameters
+            response = await self.http_client.post(
+                f"/assign-mission/{drone_id}",
+                params={
+                    "mission_id": mission.mission_id,
+                    "name": mission.name,
+                    "description": mission.description
+                }
+            )
+            response.raise_for_status()
+
+            # Update mission status in our system
             mission.status = "assigned"
             mission.assigned_drone_id = drone_id
 
-        drone.drone_status = f"ASSIGNED_TO_MISSION_{mission_id}"
+            # Get drone name from external API response
+            result = response.json()
+            drone_name = result.get("drone_name", f"Drone {drone_id}")
 
-        return AssignDroneMissionResponse(success=True, message=f"Drone {drone.drone_name} assigned to mission {mission_id}")
+            # Create detailed message
+            message = f"Mission '{mission.name}' assigned to drone '{drone_name}'"
+
+            return AssignDroneMissionResponse(
+                success=True,
+                message=message
+            )
+
+        except httpx.HTTPStatusError as e:
+            raise ValueError(f"Failed to assign mission: {e.response.text}")
+        except httpx.RequestError as e:
+            raise ValueError(f"Connection error to drone API: {str(e)}")
 
     async def get_all_drones(self) -> List[Drone]:
-        return self.drones
+        
+        try:
+            response = await self.http_client.get("/drones")
+            response.raise_for_status()
 
+            drones_data = response.json()
+            return [Drone(**drone) for drone in drones_data]
 
-# Will be initialized in main.py after mission_service is created
+        except httpx.HTTPStatusError as e:
+            raise ValueError(f"Failed to fetch drones: {e.response.text}")
+        except httpx.RequestError as e:
+            raise ValueError(f"Connection error to drone API: {str(e)}")
+
+    async def close(self):
+        """Close HTTP client connection"""
+        await self.http_client.aclose()
+
 drone_service = None
     
