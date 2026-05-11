@@ -1,13 +1,12 @@
-from typing import List
+from typing import List, Optional
 import httpx
 from entities.drone import Drone
 from schemas.drone_schema import AssignDroneMissionResponse
 from services.mission_service import MissionService
-from data_layer.db_context import DbContext
 from config import DRONE_API_BASE_URL, DRONE_API_TIMEOUT
 
 class DroneService:
-    def __init__(self, mission_service: MissionService = None):
+    def __init__(self, mission_service: Optional[MissionService] = None):
         self.mission_service = mission_service
         self.http_client = httpx.AsyncClient(
             base_url=DRONE_API_BASE_URL,

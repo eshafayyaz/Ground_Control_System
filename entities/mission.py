@@ -1,18 +1,12 @@
+from pydantic import BaseModel
+from typing import List, Optional
 from schemas.task_schema import Task
 
 
-class Mission:
-    def __init__(self, mission_id: int, name: str, description: str, tasks: list[Task] = None):
-        self.mission_id = mission_id
-        self.name = name
-        self.description = description
-        self.tasks = tasks if tasks is not None else []
-        self.status = "created"
-        self.assigned_drone_id = None
-
-    def to_dict(self):
-        return {
-            "id": self.mission_id,
-            "name": self.name,
-            "description": self.description
-        }
+class Mission(BaseModel):
+    mission_id: int
+    name: str
+    description: str
+    tasks: List[Task] = []
+    status: str = "created"
+    assigned_drone_id: Optional[int] = None

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 from schemas.task_schema import Task
 
 
@@ -6,7 +7,7 @@ class MissionCreateRequest(BaseModel):
     mission_id: int
     name: str
     description: str
-    tasks: list[Task] = []
+    tasks: List[Task] = []
 
 
 class MissionCreateResponse(BaseModel):
@@ -19,7 +20,7 @@ class MissionResponse(BaseModel):
     mission_id: int
     name: str
     description: str
-    tasks: list[Task] = []
+    tasks: List[Task] = []
 
 class AssignMissionRequest(BaseModel):
     mission_id: int
